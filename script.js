@@ -310,3 +310,4 @@ function createNewProfileCard() {
     
     return card;
 }
+
