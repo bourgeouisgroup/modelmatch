@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewMatchesBtn = document.getElementById('viewMatchesBtn');
     const swipeBtn = document.getElementById('swipeBtn');
     const bottomNav = document.querySelector('.bottom-nav');
+    const homeBtn = document.getElementById('homeBtn');
+    const matchesBtn = document.getElementById('matchesBtn');
+    const profileBtn = document.getElementById('profileBtn');
 
     function showScreen(screenId) {
         screens.forEach(screen => screen.classList.remove('active'));
@@ -23,9 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
             bottomNav.style.display = 'flex';
         }
 
-        // Set the active nav button
+        // Update the active nav button
         if (screenId === 'discover') {
-            handleNavClick('swipeBtn');
+            handleNavClick('homeBtn');
         }
     }
 
@@ -49,20 +52,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Like/Dislike functionality
     function handleSwipe(action) {
         const currentCard = document.querySelector('.profile-card');
-        const newCard = createNewProfileCard();
-        
-        // Add the new card to the DOM
-        currentCard.parentNode.appendChild(newCard);
         
         // Apply the appropriate animation classes
         currentCard.classList.add(action === 'like' ? 'slide-out-right' : 'slide-out-left');
-        newCard.classList.add('slide-in-right');
         
-        // Remove the old card and reset the new card's classes after animation
+        // Remove the old card and show the new card
         setTimeout(() => {
             currentCard.remove();
-            newCard.classList.remove('slide-in-right');
+            if (action === 'like') {
+                showNextProfile();
+            } else {
+                createNewProfileCard();
+            }
         }, 300);
+
+        if (action === 'like') {
+            console.log('Liked profile');
+            // Add code here to handle a "like" action (e.g., update matches)
+        } else {
+            console.log('Disliked profile');
+            // Add code here to handle a "dislike" action
+        }
     }
 
     likeButton.addEventListener('click', () => handleSwipe('like'));
@@ -196,14 +206,15 @@ function loadProfiles(count = 5) {
 }
 
 function showNextProfile() {
-    if (currentIndex < profiles.length - 1) {
-        currentIndex++;
-        updateCarouselPosition();
-    } else {
-        loadProfiles(1); // Load one more profile when we reach the end
-        currentIndex++;
-        updateCarouselPosition();
-    }
+    const newCard = createNewProfileCard();
+    document.getElementById('discover').appendChild(newCard);
+    newCard.style.opacity = '0';
+    newCard.classList.add('fade-in');
+    
+    // Trigger reflow to ensure the fade-in animation plays
+    void newCard.offsetWidth;
+    
+    newCard.style.opacity = '1';
 }
 
 function updateCarouselPosition() {
@@ -213,20 +224,27 @@ function updateCarouselPosition() {
 
 function handleSwipe(action) {
     const currentCard = document.querySelector('.profile-card');
-    const newCard = createNewProfileCard();
-    
-    // Add the new card to the DOM
-    currentCard.parentNode.appendChild(newCard);
     
     // Apply the appropriate animation classes
     currentCard.classList.add(action === 'like' ? 'slide-out-right' : 'slide-out-left');
-    newCard.classList.add('slide-in-right');
     
-    // Remove the old card and reset the new card's classes after animation
+    // Remove the old card and show the new card
     setTimeout(() => {
         currentCard.remove();
-        newCard.classList.remove('slide-in-right');
+        if (action === 'like') {
+            showNextProfile();
+        } else {
+            createNewProfileCard();
+        }
     }, 300);
+
+    if (action === 'like') {
+        console.log('Liked profile');
+        // Add code here to handle a "like" action (e.g., update matches)
+    } else {
+        console.log('Disliked profile');
+        // Add code here to handle a "dislike" action
+    }
 }
 
 // Initialize the carousel
@@ -259,24 +277,24 @@ function handleNavClick(buttonId) {
     document.getElementById(buttonId).classList.add('active');
 
     switch (buttonId) {
-        case 'editProfileBtn':
-            // Implement edit profile functionality
-            alert('Edit profile functionality would be implemented here.');
+        case 'homeBtn':
+            showScreen('discover');
             break;
-        case 'viewMatchesBtn':
+        case 'matchesBtn':
             // Implement view matches functionality
             alert('View matches functionality would be implemented here.');
             break;
-        case 'swipeBtn':
-            showScreen('discover');
+        case 'profileBtn':
+            // Implement edit profile functionality
+            alert('Edit profile functionality would be implemented here.');
             break;
     }
 }
 
 // Add these event listeners with your other event listeners
-editProfileBtn.addEventListener('click', () => handleNavClick('editProfileBtn'));
-viewMatchesBtn.addEventListener('click', () => handleNavClick('viewMatchesBtn'));
-swipeBtn.addEventListener('click', () => handleNavClick('swipeBtn'));
+homeBtn.addEventListener('click', () => handleNavClick('homeBtn'));
+matchesBtn.addEventListener('click', () => handleNavClick('matchesBtn'));
+profileBtn.addEventListener('click', () => handleNavClick('profileBtn'));
 
 // Add this new function to create a new profile card
 function createNewProfileCard() {
