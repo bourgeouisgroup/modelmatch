@@ -14,21 +14,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const homeBtn = document.getElementById('homeBtn');
     const matchesBtn = document.getElementById('matchesBtn');
     const profileBtn = document.getElementById('profileBtn');
+    const editBtn = document.getElementById('editBtn');
+    const chatBtn = document.getElementById('chatBtn');
 
     function showScreen(screenId) {
         screens.forEach(screen => screen.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
 
-        // Show bottom nav on all screens except landing
-        if (screenId === 'landing') {
-            bottomNav.style.display = 'none';
-        } else {
-            bottomNav.style.display = 'flex';
-        }
-
         // Update the active nav button
-        if (screenId === 'discover') {
-            handleNavClick('homeBtn');
+        const navButtons = document.querySelectorAll('.nav-btn');
+        navButtons.forEach(btn => btn.classList.remove('active'));
+        
+        switch (screenId) {
+            case 'discover':
+                document.getElementById('homeBtn').classList.add('active');
+                break;
+            case 'edit':
+                document.getElementById('editBtn').classList.add('active');
+                break;
+            case 'chat':
+                document.getElementById('chatBtn').classList.add('active');
+                break;
+            case 'profile':
+                document.getElementById('profileBtn').classList.add('active');
+                break;
         }
     }
 
@@ -52,18 +61,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Like/Dislike functionality
     function handleSwipe(action) {
         const currentCard = document.querySelector('.profile-card');
+        const newCard = createNewProfileCard();
         
         // Apply the appropriate animation classes
         currentCard.classList.add(action === 'like' ? 'slide-out-right' : 'slide-out-left');
+        newCard.classList.add('fade-in');
         
-        // Remove the old card and show the new card
+        // Add the new card to the DOM
+        currentCard.parentNode.appendChild(newCard);
+        
+        // Remove the old card and reset the new card's classes after animation
         setTimeout(() => {
             currentCard.remove();
-            if (action === 'like') {
-                showNextProfile();
-            } else {
-                createNewProfileCard();
-            }
+            newCard.classList.remove('fade-in');
+            
+            // Reattach event listeners to the new buttons
+            newCard.querySelector('#swipeLeftBtn').addEventListener('click', () => handleSwipe('dislike'));
+            newCard.querySelector('#swipeRightBtn').addEventListener('click', () => handleSwipe('like'));
         }, 300);
 
         if (action === 'like') {
@@ -224,18 +238,23 @@ function updateCarouselPosition() {
 
 function handleSwipe(action) {
     const currentCard = document.querySelector('.profile-card');
+    const newCard = createNewProfileCard();
     
     // Apply the appropriate animation classes
     currentCard.classList.add(action === 'like' ? 'slide-out-right' : 'slide-out-left');
+    newCard.classList.add('fade-in');
     
-    // Remove the old card and show the new card
+    // Add the new card to the DOM
+    currentCard.parentNode.appendChild(newCard);
+    
+    // Remove the old card and reset the new card's classes after animation
     setTimeout(() => {
         currentCard.remove();
-        if (action === 'like') {
-            showNextProfile();
-        } else {
-            createNewProfileCard();
-        }
+        newCard.classList.remove('fade-in');
+        
+        // Reattach event listeners to the new buttons
+        newCard.querySelector('#swipeLeftBtn').addEventListener('click', () => handleSwipe('dislike'));
+        newCard.querySelector('#swipeRightBtn').addEventListener('click', () => handleSwipe('like'));
     }, 300);
 
     if (action === 'like') {
@@ -247,85 +266,5 @@ function handleSwipe(action) {
     }
 }
 
-// Initialize the carousel
-loadProfiles();
-
-// Update swipe functionality
-function handleEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    const diff = moveX - startX;
-    if (Math.abs(diff) > 100) {
-        handleSwipe(diff > 0 ? 'like' : 'dislike');
-    } else {
-        swipeContainer.style.transition = 'transform 0.3s ease';
-        swipeContainer.style.transform = 'translateX(0)';
-        updateOverlay(0);
-    }
-}
-
-// Update event listeners
-likeButton.addEventListener('click', () => handleSwipe('like'));
-dislikeButton.addEventListener('click', () => handleSwipe('dislike'));
-swipeLeftBtn.addEventListener('click', () => handleSwipe('dislike'));
-swipeRightBtn.addEventListener('click', () => handleSwipe('like'));
-
-// Add this function to handle navigation button clicks
-function handleNavClick(buttonId) {
-    const navButtons = document.querySelectorAll('.nav-btn');
-    navButtons.forEach(btn => btn.classList.remove('active'));
-    document.getElementById(buttonId).classList.add('active');
-
-    switch (buttonId) {
-        case 'homeBtn':
-            showScreen('discover');
-            break;
-        case 'matchesBtn':
-            // Implement view matches functionality
-            alert('View matches functionality would be implemented here.');
-            break;
-        case 'profileBtn':
-            // Implement edit profile functionality
-            alert('Edit profile functionality would be implemented here.');
-            break;
-    }
-}
-
-// Add these event listeners with your other event listeners
-homeBtn.addEventListener('click', () => handleNavClick('homeBtn'));
-matchesBtn.addEventListener('click', () => handleNavClick('matchesBtn'));
-profileBtn.addEventListener('click', () => handleNavClick('profileBtn'));
-
-// Add this new function to create a new profile card
-function createNewProfileCard() {
-    const card = document.createElement('div');
-    card.className = 'profile-card';
-    const newProfile = {
-        name: getRandomName(),
-        age: getRandomAge(),
-        interests: getRandomInterests(),
-        image: `https://source.unsplash.com/random/350x500/?model&t=${Date.now()}`
-    };
-    
-    card.innerHTML = `
-        <div class="header-panel">
-            <h1>Model Match</h1>
-        </div>
-        <img src="${newProfile.image}" alt="Profile" class="profile-image">
-        <div class="profile-info">
-            <h2>${newProfile.name}, ${newProfile.age}</h2>
-            <p>${newProfile.interests}</p>
-        </div>
-        <div class="action-buttons">
-            <button class="action-btn dislike" id="swipeLeftBtn"><i class="fas fa-times"></i></button>
-            <button class="action-btn like" id="swipeRightBtn"><i class="fas fa-heart"></i></button>
-        </div>
-    `;
-    
-    // Reattach event listeners to the new buttons
-    card.querySelector('#swipeLeftBtn').addEventListener('click', () => handleSwipe('dislike'));
-    card.querySelector('#swipeRightBtn').addEventListener('click', () => handleSwipe('like'));
-    
-    return card;
-}
-
+// Initialize the app
+showScreen('discover');
